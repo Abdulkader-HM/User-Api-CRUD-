@@ -1,0 +1,195 @@
+openapi: 3.0.0
+info:
+  title: User(CRUD)
+  version: 1.0.0
+  description: (CRUD) API system for Admin to manage users
+servers:
+  - url: http://localhost:8000/api/auth
+tags:
+  - name: user
+    description: everything about user manager
+paths:
+  /profile:
+    post:
+      tags:
+        - user
+      summary: Registration
+      requestBody:
+        description: registration in site
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        405:
+          description: Invalid input
+          content: {}
+      x-codegen-request-body-name: body
+    patch:
+      tags:
+        - user
+      summary: Logs user into the system
+      operationId: loginUser
+      parameters:
+        - name: email
+          in: query
+          description: The user email for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login 
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Invalid username/password supplied
+          content: {}
+  /user:
+    post:
+      tags:
+        - user
+      summary: Add a new user
+      operationId: add user
+      requestBody:
+        description: adding user
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        405:
+          description: Invalid input
+          content: {}
+      x-codegen-request-body-name: body
+  /user/{id}:
+    get:
+      tags:
+        - user
+      summary: Get user by user id
+      operationId: getUserByID
+      parameters:
+        - name: id
+          in: path
+          description: "Get data for user by id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/User"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Invalid username supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+    put:
+      tags:
+      - user
+      summary: Updated user
+      description: update user data
+      operationId: updateUser
+      parameters:
+      - name: id
+        in: path
+        description: id that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+
+        200:
+          description: successful
+          content: {}
+        400:
+          description: Invalid user supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: The name that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        400:
+          description: Invalid username supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          description: User Status
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
